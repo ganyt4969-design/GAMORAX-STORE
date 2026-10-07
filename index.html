@@ -49,11 +49,66 @@
 </main>
 <footer>© 2026 GamoraX Royal Dream</footer>
 <script>
-function show(id){['home','order','payment','done'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');window.scrollTo(0,0)}
-function harga(){let v=document.getElementById('nominal').value;document.getElementById('total').textContent=v?'Total: Rp '+Number(v.split('|')[0]).toLocaleString('id-ID'):''}
-function safe(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-function toPayment(){let n=document.getElementById('nama').value.trim(),i=document.getElementById('idAkun').value.trim(),v=document.getElementById('nominal').value;if(!n||!i||!v){alert('Lengkapi Nama, ID Akun, dan Nominal terlebih dahulu.');return}let [amount,paket]=v.split('|');document.getElementById('detail').innerHTML='<b>Nama:</b> '+safe(n)+'<br><b>ID Akun:</b> '+safe(i)+'<br><b>Paket:</b> '+safe(paket)+'<br><b>Total:</b> Rp '+Number(amount).toLocaleString('id-ID');show('payment')}
-function finish(){let n=document.getElementById('nama').value,i=document.getElementById('idAkun').value,v=document.getElementById('nominal').value;let [amount,paket]=v.split('|');document.getElementById('final').innerHTML='<br><b>Nama:</b> '+safe(n)+'<br><b>ID Akun:</b> '+safe(i)+'<br><b>Paket:</b> '+safe(paket)+'<br><b>Total:</b> Rp '+Number(amount).toLocaleString('id-ID');show('done')}
+function show(id) {
+  ['home','order','payment','done'].forEach(function(x) {
+    document.getElementById(x).classList.toggle('hidden', x !== id);
+  });
+}
+
+function harga() {
+  var v = document.getElementById('nominal').value.split('|')[0];
+  document.getElementById('total').textContent = v ? 'Rp' + Number(v).toLocaleString('id-ID') : '';
+}
+
+function safe(s) {
+  return s.replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function toPayment() {
+  var nama = document.getElementById('nama').value.trim();
+  var idAkun = document.getElementById('idAkun').value.trim();
+  var pilihan = document.getElementById('nominal').value;
+
+  if (!nama || !idAkun || !pilihan) {
+    alert('Silakan lengkapi Nama, ID Akun, dan pilih nominal terlebih dahulu.');
+    return;
+  }
+
+  var bagian = pilihan.split('|');
+  var hargaPesanan = bagian[0];
+  var paket = bagian[1];
+
+  var data = {
+    nama: nama,
+    idAkun: idAkun,
+    paket: paket,
+    harga: hargaPesanan
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbyBnZd6OnQpUG3ZECLGjW_gSbkIpNcg1IDgLP55uzBK7Mqo2WlsprS9cvkesv9K1pkVrQ/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify(data)
+  });
+
+  document.getElementById('detail').innerHTML =
+    '<b>Nama:</b> ' + safe(nama) +
+    '<br><b>ID Akun:</b> ' + safe(idAkun) +
+    '<br><b>Paket:</b> ' + safe(paket) +
+    '<br><b>Harga:</b> Rp' + Number(hargaPesanan).toLocaleString('id-ID');
+ show('payment');
+}
+function finish() {
+  var nama = document.getElementById('nama').value;
+  document.getElementById('final').innerHTML =
+    'Pesanan atas nama <b>' + safe(nama) + '</b> telah dicatat.';
+  show('done');
+                          }
 </script>
 </body>
 </html>
